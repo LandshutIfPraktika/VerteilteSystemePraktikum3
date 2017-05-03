@@ -1,0 +1,65 @@
+module Circus {
+    enum Ausweispapiere {
+        Personalausweis,
+        Reisepass
+    };
+
+    struct Wohnort_struct {
+        string Orstname;
+        string Staat;
+        short Datum[8];
+    };
+
+    struct Name_struct {
+        string Nachname;
+        sequence<string> Vornamen;
+    };
+
+    typedef sequence<Wohnort_struct> Wohnorte;
+
+    interface Mensch {
+        readonly attribute Name_struct Name;
+        attribute Ausweispapiere Papiere;
+    };
+
+    interface Reporter : Mensch {
+    };
+
+    interface Promi : Mensch {
+
+        enum Grund {
+            NichtDa,
+            Steuerhinterzieher,
+            Verbrecher
+        };
+
+        exception Hinzugsverweigerung {
+            string Grund;
+        };
+
+        exception Wegzugsverweigerung {
+            Grund Grund;
+        };
+
+        attribute Wohnorte Wohnorte;
+
+
+
+        string InteviewMuendlich(in Reporter paparazzi);
+        void InterviewSchriftlich(in Reporter reporter, out string antwort);
+
+        void Hinziehen(in Wohnort_struct wohnort) raises(Hinzugsverweigerung);
+        void Wegziehen(in Wohnort_struct wohnort) raises(Wegzugsverweigerung);
+    };
+
+    interface Meldeamt {
+        union Schluessel switch(boolean) {
+            case FALSE: Ausweispapiere Papiere;
+            case TRUE: Name_struct Name;
+        };
+
+        Promi Suche(in Schluessel key);
+        void Hinziehen(in Promi depp);
+        void Wegziehen(in Promi depp);
+    };
+};
